@@ -16,11 +16,22 @@ body {
 /* Layout */
 .app {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 320px; /* content | sidebar */
   gap: 16px;
-  max-width: 1100px;
+  max-width: 1100px;               /* keep in sync with .toaster calc() */
   margin: 0 auto;
+  align-items: start;               /* important for sticky */
 }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  position: sticky;  /* <-- moved here */
+  top: 16px;         /* <-- offset */
+  align-self: start; /* belt + suspenders in grid */
+  height: max-content;
+}
+
 
 .main-content header {
   margin-bottom: 12px;
@@ -55,23 +66,18 @@ body {
   background: #1e40af;
 }
 
-/* Cocktail results container */
-.results {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-  margin-top: 16px;
-}
-
-/* Individual cocktail card */
+/* Card: horizontal "mat-card" (image left, content right) */
 .card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;     /* was column */
+  align-items: stretch;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   overflow: hidden;
+  min-height: 220px;       /* give media some height */
+  margin-bottom: 16px;
 }
 
 .card:hover {
@@ -79,77 +85,53 @@ body {
   box-shadow: 0 8px 16px rgba(0,0,0,0.15);
 }
 
-/* Thumbnail image */
+/* Left: media */
 .thumb {
-  width: 100%;
-  height: 180px;
+  flex: 1 1 50%;
+  max-width: 50%;
+  position: relative;
   overflow: hidden;
+  aspect-ratio: 4 / 3;     /* keeps image area proportional */
 }
 
 .thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover;       /* crop nicely */
   display: block;
 }
 
-/* Card meta content */
+/* Right: content */
 .meta {
+  flex: 1 1 50%;
+  max-width: 50%;
   display: flex;
   flex-direction: column;
   padding: 16px;
   gap: 8px;
 }
 
-.meta h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.meta .instructions {
-  font-size: 0.95rem;
-  color: #555;
-  max-height: 4.5rem;
-  overflow: hidden;
-}
-
-/* Buttons container inside card */
+/* Buttons row pinned to bottom of content */
 .card-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: auto;        /* push buttons to bottom of content column */
 }
 
-.card-buttons button {
-  flex: 1;
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background-color: #2563eb;
-  color: #fff;
-  transition: background 0.2s ease;
-}
 
-.card-buttons button:hover {
-  background-color: #1e40af;
-}
-
-/* Shopping list */
 .shopping {
+  position: static;  /* <-- was sticky before */
   background: white;
   padding: 12px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  height: fit-content;
+  height: max-content;
 }
 
 .list {
   margin: 8px 0;
-  max-height: 520px;
-  overflow: auto;
+  max-height: calc(100vh - 220px); /* leaves room for title + buttons */
+  overflow: auto;                   /* IMPORTANT: scroll inner list */
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 8px;
@@ -159,8 +141,14 @@ body {
 .list-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   padding: 6px 0;
   border-bottom: 1px dashed #eee;
+}
+
+.list-item:last-child {
+  border-bottom: none;
 }
 
 .list-item button {
@@ -203,11 +191,12 @@ body {
   color: #666;
 }
 
-/* Toaster messages */
+/* Toaster: anchored to bottom, aligned with right column */
 .toaster {
   position: fixed;
-  right: 16px;
   bottom: 16px;
+  width: 320px;                          /* match sidebar width */
+  right: calc(50% - 1100px / 2);         /* align with right edge of .app */
   z-index: 1000;
 }
 
@@ -235,4 +224,36 @@ body {
 .small {
   font-size: 0.85rem;
   color: #666;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  /* Toaster hugs viewport edge and becomes fluid on smaller screens */
+  .toaster {
+    right: 16px;
+  }
+}
+
+@media (max-width: 800px) {
+  .app {
+    grid-template-columns: 1fr;   /* stack columns */
+  }
+  .shopping {
+    position: static;             /* optional: disable sticky on phones */
+  }
+  .list {
+    max-height: none;             /* let it expand naturally */
+  }
+  .toaster {
+    width: calc(100vw - 32px);    /* full width minus page padding */
+    right: 16px;
+    bottom: 16px;
+    max-width: 420px;
+  }
+}
+
+/* Print-friendly tweaks */
+@media print {
+  .toaster { display: none; }
+  .shopping { position: static; box-shadow: none; }
 }

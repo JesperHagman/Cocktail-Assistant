@@ -8,11 +8,18 @@ export interface Drink {
   [key: string]: any;
 }
 
+export interface ShoppingItem {
+  /** normalized ingredient name, e.g. "tequila" */
+  key: string;
+  /** display label, e.g. "Tequila" */
+  label: string;
+}
+
 class StoreClass {
   private _subscribers: Subscriber[] = [];
   public query = '';
   public results: Drink[] = [];
-  public shopping: string[] = [];
+  public shopping: ShoppingItem[] = [];
 
   setQuery(q: string) {
     this.query = q;
@@ -24,21 +31,21 @@ class StoreClass {
     this._notify();
   }
 
-  addToShopping(items: string[]) {
-    const normalize = (s: string) => s.trim().toLowerCase();
-    const existing = new Set(this.shopping.map(normalize));
-    items.forEach(it => {
-      const n = normalize(it);
-      if (n && !existing.has(n)) {
-        existing.add(n);
-        this.shopping.push(it.trim());
+  /** Dedup by ingredient name (key), show only the name (label) */
+  addToShopping(items: ShoppingItem[]) {
+    const existing = new Set(this.shopping.map(s => s.key));
+    for (const it of items) {
+      if (!it.key) continue;
+      if (!existing.has(it.key)) {
+        existing.add(it.key);
+        this.shopping.push({ key: it.key, label: it.label });
       }
-    });
+    }
     this._notify();
   }
 
-  removeShopping(item: string) {
-    const idx = this.shopping.findIndex(i => i.trim().toLowerCase() === item.trim().toLowerCase());
+  removeShopping(key: string) {
+    const idx = this.shopping.findIndex(i => i.key === key);
     if (idx >= 0) this.shopping.splice(idx, 1);
     this._notify();
   }
@@ -63,15 +70,18 @@ class StoreClass {
 
 export const Store = new StoreClass();
 
-// reusable helper to extract ingredients
-export function extractIngredients(d: Drink): string[] {
-  const list: string[] = [];
+/** Extract ingredients as ShoppingItem[], dropping measures */
+export function extractIngredients(d: Drink): ShoppingItem[] {
+  const out: ShoppingItem[] = [];
   for (let i = 1; i <= 15; i++) {
     const name = d[`strIngredient${i}`];
-    const measure = d[`strMeasure${i}`];
-    if (name && String(name).trim()) {
-      list.push((measure ? String(measure).trim() + ' ' : '') + String(name).trim());
-    }
+    if (!name || !String(name).trim()) continue;
+
+    const cleanName = String(name).trim();
+    const key = cleanName.toLowerCase();
+    const label = cleanName; // no measurement
+
+    out.push({ key, label });
   }
-  return list;
+  return out;
 }

@@ -12,7 +12,7 @@ function CocktailResults(this: HTMLElement) {
   }, []);
 
   function addDrinkToShopping(drink: Drink) {
-    const ingredients = extractIngredients(drink);
+    const ingredients = extractIngredients(drink); // returns ShoppingItem[]
     if (ingredients.length === 0) {
       Toaster.push('No ingredients found in this recipe.');
       return;
@@ -48,4 +48,9 @@ function CocktailResults(this: HTMLElement) {
   `;
 }
 
-customElements.define('cocktail-results', component(CocktailResults));
+// Disable Shadow DOM so we can style with global main.css
+customElements.define(
+  'cocktail-results',
+  component(CocktailResults, { useShadowDOM: false })
+);
+

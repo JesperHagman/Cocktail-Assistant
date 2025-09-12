@@ -20,22 +20,24 @@
       </main>
     </div>
 
-    <aside>
-      <div class="shopping">
-        <h2>Shopping List</h2>
-        <shopping-list></shopping-list>
-        <div class="shopping-buttons">
-          <button id="print-btn">Print</button>
-          <button id="clear-btn" class="btn-clear">Clear</button>
-        </div>
-        <p class="small note">Note: Ingredients are deduplicated.</p>
+  <div class="sidebar">
+    <div class="shopping">
+      <h2>Shopping List</h2>
+      <shopping-list></shopping-list>
+      <div class="shopping-buttons">
+        <button id="print-btn">Print</button>
+        <button id="clear-btn" class="btn-clear">Clear</button>
       </div>
-    </aside>
+      <p class="small note">Note: Ingredients are deduplicated.</p>
+    </div>
+
+    <div class="toaster">
+      <app-toaster></app-toaster>
+    </div>
   </div>
 
-  <div class="toaster">
-    <app-toaster></app-toaster>
   </div>
+
 
   <script type="module" src="./src/app.ts"></script>
 </body>
