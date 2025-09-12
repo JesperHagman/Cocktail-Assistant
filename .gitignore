@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+
+# parcel / build artifacts
+/.parcel-cache
+/dist
+
+# TypeScript
+/*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/

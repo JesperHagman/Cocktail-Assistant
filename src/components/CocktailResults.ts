@@ -1,0 +1,51 @@
+import { html } from 'lit-html';
+import { component, useState, useEffect } from 'haunted';
+import { Store, Drink, extractIngredients } from '../services/Store';
+import { Toaster } from '../services/Toaster';
+
+function CocktailResults(this: HTMLElement) {
+  const [results, setResults] = useState<Drink[]>(Store.results);
+
+  useEffect(() => {
+    const unsub = Store.subscribe(() => setResults([...Store.results]));
+    return unsub;
+  }, []);
+
+  function addDrinkToShopping(drink: Drink) {
+    const ingredients = extractIngredients(drink);
+    if (ingredients.length === 0) {
+      Toaster.push('No ingredients found in this recipe.');
+      return;
+    }
+    Store.addToShopping(ingredients);
+    Toaster.push('Ingredients added to shopping list.');
+  }
+
+  function viewInstructions(d: Drink) {
+    const text = d.strInstructions ?? 'No instructions provided.';
+    alert(text);
+  }
+
+  return html`
+    ${results.length === 0
+      ? html`<p class="small">No cocktails to show. Try searching for "margarita".</p>`
+      : results.map(drink => html`
+        <div class="card">
+          <div class="thumb">
+            <img src="${drink.strDrinkThumb ?? ''}" alt="${drink.strDrink ?? ''}" />
+          </div>
+          <div class="meta">
+            <h3>${drink.strDrink}</h3>
+            <div class="instructions">${drink.strInstructions ?? ''}</div>
+            <div class="card-buttons">
+              <button @click=${() => addDrinkToShopping(drink)}>+ Add ingredients</button>
+              <button @click=${() => viewInstructions(drink)}>View</button>
+            </div>
+          </div>
+        </div>
+      `)
+    }
+  `;
+}
+
+customElements.define('cocktail-results', component(CocktailResults));

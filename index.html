@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Cocktail Assistant</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="./src/styles/main.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="main-content">
+      <header>
+        <search-panel></search-panel>
+      </header>
+
+      <main>
+        <div id="results" class="results">
+          <cocktail-results></cocktail-results>
+        </div>
+      </main>
+    </div>
+
+    <aside>
+      <div class="shopping">
+        <h2>Shopping List</h2>
+        <shopping-list></shopping-list>
+        <div class="shopping-buttons">
+          <button id="print-btn">Print</button>
+          <button id="clear-btn" class="btn-clear">Clear</button>
+        </div>
+        <p class="small note">Note: Ingredients are deduplicated.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toaster">
+    <app-toaster></app-toaster>
+  </div>
+
+  <script type="module" src="./src/app.ts"></script>
+</body>
+</html>
