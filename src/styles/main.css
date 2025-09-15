@@ -87,6 +87,11 @@ body {
   margin-top: auto;
 }
 
+.card-buttons button {
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
 /* Toaster notification container */
 .toaster {
   position: fixed;
@@ -103,7 +108,6 @@ body {
   border-radius: 8px;
   margin-top: 8px;
   opacity: 0.95;
-  animation: fadein 0.3s, fadeout 0.5s 2.5s;
 }
 
 #print-btn,
