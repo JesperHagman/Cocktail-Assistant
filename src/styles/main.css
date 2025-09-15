@@ -2,56 +2,35 @@
 * {
   box-sizing: border-box;
   margin: 0;
-  padding: 0;
 }
 
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 16px;
-  background: #f6f7fb;
+  background: #f9f6f1;
   color: #222;
 }
 
-/* Layout */
 .app {
   display: grid;
   grid-template-columns: 1fr 320px; /* content | sidebar */
   gap: 16px;
-  max-width: 1100px;               /* keep in sync with .toaster calc() */
+  max-width: 1100px;
   margin: 0 auto;
-  align-items: start;               /* important for sticky */
+  align-items: start;
 }
 
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  position: sticky;  /* <-- moved here */
-  top: 16px;         /* <-- offset */
-  align-self: start; /* belt + suspenders in grid */
-  height: max-content;
+/* Let header span both columns */
+.app-header {
+  grid-column: 1 / -1;
+  margin-bottom: 16px;
 }
 
 
 .main-content header {
   margin-bottom: 12px;
 }
-
-/* Search panel */
-.search {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.search input[type="search"] {
-  flex: 1;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 16px;
-}
-
 
 /* Card: horizontal "mat-card" (image left, content right) */
 .card {
@@ -60,7 +39,7 @@ body {
   align-items: stretch;
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   overflow: hidden;
   min-height: 220px;       /* give media some height */
@@ -101,6 +80,7 @@ body {
 /* Buttons row pinned to bottom of content */
 .card-buttons {
   display: flex;
+  justify-content: flex-end;
   gap: 8px;
   margin-top: auto;        /* push buttons to bottom of content column */
 }
@@ -217,7 +197,8 @@ body {
   .toaster,
   .shopping-buttons,
   .note,
-  .list-item button {
+  .list-item button,
+  .app-header {
     display: none;
   }
 

@@ -21,11 +21,6 @@ function CocktailResults(this: HTMLElement) {
     Toaster.push('Ingredients added to shopping list.');
   }
 
-  function viewInstructions(d: Drink) {
-    const text = d.strInstructions ?? 'No instructions provided.';
-    alert(text);
-  }
-
   return html`
     ${results.length === 0
       ? html`<p class="small">No cocktails to show. Try searching for "margarita".</p>`
@@ -39,7 +34,6 @@ function CocktailResults(this: HTMLElement) {
             <div class="instructions">${drink.strInstructions ?? ''}</div>
             <div class="card-buttons">
               <button @click=${() => addDrinkToShopping(drink)}>+ Add ingredients</button>
-              <button @click=${() => viewInstructions(drink)}>View</button>
             </div>
           </div>
         </div>

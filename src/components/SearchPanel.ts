@@ -38,6 +38,21 @@ function SearchPanel(this: HTMLElement) {
   }, []);
 
   return html`
+    <style>
+    .search {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .search input[type="search"] {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+    </style>
+
     <div class="search">
       <input
         type="search"
