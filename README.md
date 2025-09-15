@@ -1,7 +1,9 @@
 # Cocktail Assistant
 
-Tiny app to gather a shopping list for multiple cocktails.
-A small Haunted + lit-html app to search cocktails and build a deduplicated shopping list.
+Tiny app to gather a shopping list for multiple cocktails.  
+A small Haunted + lit-html app to search cocktails and build a deduplicated shopping list.  
+
+👉 **Live demo:** https://jesperhagman.github.io/Cocktail-Assistant/
 
 ## Features
 
@@ -23,6 +25,7 @@ A small Haunted + lit-html app to search cocktails and build a deduplicated shop
 - Native [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for API calls
 - TypeScript
 - [Parcel](https://parceljs.org/) bundler for dev/build
+- Deployed with **GitHub Pages**
 
 ## Architecture
 

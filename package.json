@@ -4,7 +4,8 @@
   "description": "Tiny app that gathers shopping list for cocktails (Haunted + lit-html, TypeScript)",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html --public-url ./"
+    "build": "parcel build index.html --public-url ./",
+    "deploy": "gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
     "lit-html": "^2.7.0"
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
     "parcel": "^2.9.0",
     "typescript": "^5.5.0"
   }
