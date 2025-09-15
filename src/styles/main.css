@@ -52,19 +52,6 @@ body {
   font-size: 16px;
 }
 
-.search button {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: none;
-  background: #2563eb;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.search button:hover {
-  background: #1e40af;
-}
 
 /* Card: horizontal "mat-card" (image left, content right) */
 .card {
@@ -138,25 +125,6 @@ body {
   background: #fff;
 }
 
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px dashed #eee;
-}
-
-.list-item:last-child {
-  border-bottom: none;
-}
-
-.list-item button {
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
 /* Buttons container for shopping list */
 .shopping-buttons {
   display: flex;
@@ -210,16 +178,6 @@ body {
   animation: fadein 0.3s, fadeout 0.5s 2.5s;
 }
 
-@keyframes fadein {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 0.95; transform: translateY(0); }
-}
-
-@keyframes fadeout {
-  from { opacity: 0.95; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
-}
-
 /* Small text */
 .small {
   font-size: 0.85rem;
@@ -254,6 +212,44 @@ body {
 
 /* Print-friendly tweaks */
 @media print {
-  .toaster { display: none; }
-  .shopping { position: static; box-shadow: none; }
+  /* Hide everything except the shopping section */
+  .main-content,
+  .toaster,
+  .shopping-buttons,
+  .note,
+  .list-item button {
+    display: none;
+  }
+
+  /* Expand sidebar to full width */
+  .app {
+    display: block;
+    max-width: none;
+    margin: 0;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+  }
+
+  .shopping {
+    position: static;   /* remove sticky */
+    box-shadow: none;
+    border: none;
+    background: #fff;
+    padding: 0;
+    width: 100%;
+  }
+
+  .list {
+    max-height: none;
+    overflow: visible;
+    border: none;
+  }
+
+  shopping-list .list-item button,
+  .shopping .list-item button {
+    display: none;
+  }
 }
