@@ -1,22 +1,35 @@
 # Cocktail Assistant
+
 Tiny app to gather a shopping list for multiple cocktails.
 
 ## Features
 
-- Search cocktails (TheCocktailDB API)
-- Results with thumbnail, name, instructions and "Add" button
-- Shopping list that deduplicates ingredients across cocktails
-- Print shopping list (browser print dialog)
-- Toaster messages for UI feedback
+- 🔍 Search cocktails via [TheCocktailDB API](https://www.thecocktaildb.com/)
+- 📋 Results listing with **thumbnail, name, instructions, and "Add to shopping list"** button
+- 🛒 Shopping list that **deduplicates ingredients** across cocktails
+- 🖨️ Print shopping list (browser print dialog, only the list is printed)
+- 🍞 Toaster messages for UI feedback:
+  - "Searching..."
+  - "Here are the results."
+  - "No results found."
+  - "Ingredients added to shopping list."
+  - "Ingredient removed from shopping list."
 
-## Tech
+## Tech stack
 
-- Haunted (web components + hooks)
-- lit-html for rendering
-- Native `fetch` for API calls
+- [Haunted](https://github.com/matthewp/haunted) (web components + hooks)
+- [lit-html](https://lit.dev/) for rendering
+- Native [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for API calls
+- TypeScript
+- [Parcel](https://parceljs.org/) bundler for dev/build
 
-## Insights and explanations
-- “For a production app I’d scope styles properly with Shadow DOM and component-local CSS. For this test I’ve disabled Shadow DOM for a few components to share a single global stylesheet.”
+## Insights
+
+- For production I would scope styles properly with Shadow DOM and component-local CSS.  
+- In this test I demonstrated two different approaches:
+  1. Most components use `CSSStyleSheet` + `adoptedStyleSheets` for scoped styles (including print-specific rules in the shopping list).  
+  2. Some components (like the toaster) use an inline `<style>` block for very localized styling.  
+- Shadow DOM is disabled on one component (like `cocktail-results`) to simplify global layout styling via `main.css`.
 
 ## Quick start
 

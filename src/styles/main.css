@@ -28,6 +28,13 @@ body {
   margin-bottom: 16px;
 }
 
+.shopping {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
 /* Cocktail "cards" */
 .card {
   display: flex;
@@ -99,18 +106,16 @@ body {
   animation: fadein 0.3s, fadeout 0.5s 2.5s;
 }
 
-@keyframes fadein {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 0.95; transform: translateY(0); }
-}
-
-@keyframes fadeout {
-  from { opacity: 0.95; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
+#print-btn,
+#clear-btn {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid black;
 }
 
 /* Small text (shared) */
 .small {
+  padding-top: 1rem;
   font-size: 0.85rem;
   color: #666;
 }

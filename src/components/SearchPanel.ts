@@ -3,10 +3,36 @@ import { component, useState, useEffect } from 'haunted';
 import { Store, Drink } from '../services/Store';
 import { Toaster } from '../services/Toaster';
 
+// Constructable stylesheet
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(`
+  .search {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .search input[type="search"] {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+
+  .search button {
+    border-radius: 6px;
+  }
+`);
+
 function SearchPanel(this: HTMLElement) {
   const [q, setQ] = useState<string>('');
 
-  // Fetch function
+  // Attach stylesheet to shadow DOM when mounted
+  useEffect(() => {
+    if (this.shadowRoot) {
+      this.shadowRoot.adoptedStyleSheets = [sheet];
+    }
+  }, []);
+
   async function doSearch(query?: string) {
     const searchQuery = (query ?? q).trim();
     if (!searchQuery) return;
@@ -15,7 +41,9 @@ function SearchPanel(this: HTMLElement) {
     Store.setQuery(searchQuery);
 
     try {
-      const res = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(
+        `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`
+      );
       const json = await res.json();
 
       if (!json.drinks) {
@@ -32,27 +60,12 @@ function SearchPanel(this: HTMLElement) {
     }
   }
 
-  // Run on mount: fetch default drinks
+  // Default search on mount
   useEffect(() => {
-    doSearch('margarita'); // default search on page load
+    doSearch('margarita');
   }, []);
 
   return html`
-    <style>
-    .search {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-    }
-    .search input[type="search"] {
-      flex: 1;
-      padding: 10px 12px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-    }
-    </style>
-
     <div class="search">
       <input
         type="search"
