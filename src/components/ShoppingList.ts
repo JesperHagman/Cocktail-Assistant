@@ -38,12 +38,12 @@ sheet.replaceSync(`
   @media print {
     /* Hide remove buttons in print */
     .list-item button {
-      display: none !important;
+      display: none;
     }
     .list {
-      max-height: none !important;
-      overflow: visible !important;
-      border: none !important;
+      max-height: none;
+      overflow: visible;
+      border: none;
     }
   }
 `);
