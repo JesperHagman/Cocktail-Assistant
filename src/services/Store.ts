@@ -17,7 +17,7 @@ export interface ShoppingItem {
 
 class StoreClass {
   private _subscribers: Subscriber[] = [];
-  public query = '';
+  public query = "";
   public results: Drink[] = [];
   public shopping: ShoppingItem[] = [];
 
@@ -33,7 +33,7 @@ class StoreClass {
 
   /** Dedup by ingredient name (key), show only the name (label) */
   addToShopping(items: ShoppingItem[]) {
-    const existing = new Set(this.shopping.map(s => s.key));
+    const existing = new Set(this.shopping.map((s) => s.key));
     for (const it of items) {
       if (!it.key) continue;
       if (!existing.has(it.key)) {
@@ -45,7 +45,7 @@ class StoreClass {
   }
 
   removeShopping(key: string) {
-    const idx = this.shopping.findIndex(i => i.key === key);
+    const idx = this.shopping.findIndex((i) => i.key === key);
     if (idx >= 0) this.shopping.splice(idx, 1);
     this._notify();
   }
@@ -64,7 +64,7 @@ class StoreClass {
   }
 
   private _notify() {
-    this._subscribers.forEach(fn => fn());
+    this._subscribers.forEach((fn) => fn());
   }
 }
 

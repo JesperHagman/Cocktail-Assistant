@@ -1,7 +1,7 @@
-import { html } from 'lit-html';
-import { component, useState, useEffect } from 'haunted';
-import { Store, Drink } from '../services/Store';
-import { Toaster } from '../services/Toaster';
+import { html } from "lit-html";
+import { component, useState, useEffect } from "haunted";
+import { Store, Drink } from "../services/Store";
+import { Toaster } from "../services/Toaster";
 
 // Constructable stylesheet
 const sheet = new CSSStyleSheet();
@@ -21,10 +21,22 @@ sheet.replaceSync(`
   .search button {
     border-radius: 6px;
   }
+
+  button {
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  }
+
+  button:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* lifted */
+  }
+
+  button:active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* flatter shadow */
+  }
 `);
 
 function SearchPanel(this: HTMLElement) {
-  const [q, setQ] = useState<string>('');
+  const [q, setQ] = useState<string>("");
 
   // Attach stylesheet to shadow DOM when mounted
   useEffect(() => {
@@ -37,32 +49,34 @@ function SearchPanel(this: HTMLElement) {
     const searchQuery = (query ?? q).trim();
     if (!searchQuery) return;
 
-    Toaster.push('Searching...');
+    Toaster.push("Searching...");
     Store.setQuery(searchQuery);
 
     try {
       const res = await fetch(
-        `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`
+        `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(
+          searchQuery
+        )}`
       );
       const json = await res.json();
 
       if (!json.drinks) {
         Store.setResults([]);
-        Toaster.push('No results found.');
+        Toaster.push("No results found.");
       } else {
         Store.setResults(json.drinks as Drink[]);
-        Toaster.push('Here are the results.');
+        Toaster.push("Here are the results.");
       }
     } catch (err) {
       console.error(err);
       Store.setResults([]);
-      Toaster.push('Search failed.');
+      Toaster.push("Search failed.");
     }
   }
 
   // Default search on mount
   useEffect(() => {
-    doSearch('margarita');
+    doSearch("margarita");
   }, []);
 
   return html`
@@ -72,11 +86,11 @@ function SearchPanel(this: HTMLElement) {
         placeholder="Search cocktails"
         .value=${q}
         @input=${(e: Event) => setQ((e.target as HTMLInputElement).value)}
-        @keydown=${(e: KeyboardEvent) => e.key === 'Enter' && doSearch()}
+        @keydown=${(e: KeyboardEvent) => e.key === "Enter" && doSearch()}
       />
       <button @click=${() => doSearch()}>Search</button>
     </div>
   `;
 }
 
-customElements.define('search-panel', component(SearchPanel));
+customElements.define("search-panel", component(SearchPanel));

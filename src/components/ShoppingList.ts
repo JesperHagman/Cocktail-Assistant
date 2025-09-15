@@ -1,7 +1,7 @@
-import { html } from 'lit-html';
-import { component, useState, useEffect } from 'haunted';
-import { Store } from '../services/Store';
-import { Toaster } from '../services/Toaster';
+import { html } from "lit-html";
+import { component, useState, useEffect } from "haunted";
+import { Store } from "../services/Store";
+import { Toaster } from "../services/Toaster";
 
 // Constructable stylesheet with your existing CSS
 const sheet = new CSSStyleSheet();
@@ -62,13 +62,13 @@ function ShoppingList(this: HTMLElement) {
       this.shadowRoot.adoptedStyleSheets = [sheet];
     }
 
-    const printBtn = document.getElementById('print-btn');
-    const clearBtn = document.getElementById('clear-btn');
+    const printBtn = document.getElementById("print-btn");
+    const clearBtn = document.getElementById("clear-btn");
     if (printBtn) printBtn.onclick = () => window.print();
     if (clearBtn) {
       clearBtn.onclick = () => {
         Store.clearShopping();
-        Toaster.push('Shopping list cleared.');
+        Toaster.push("Shopping list cleared.");
       };
     }
   }, []);
@@ -77,23 +77,25 @@ function ShoppingList(this: HTMLElement) {
     <div class="list">
       ${items.length === 0
         ? html`<p class="small">No items yet — add some cocktails.</p>`
-        : items.map(item => html`
-          <div class="list-item">
-            <div>${item.label}</div>
-            <div>
-              <button
-                @click=${() => {
-                  Store.removeShopping(item.key);
-                  Toaster.push('Ingredient removed from shopping list.');
-                }}>
-                Remove
-              </button>
-            </div>
-          </div>
-        `)
-      }
+        : items.map(
+            (item) => html`
+              <div class="list-item">
+                <div>${item.label}</div>
+                <div>
+                  <button
+                    @click=${() => {
+                      Store.removeShopping(item.key);
+                      Toaster.push("Ingredient removed from shopping list.");
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            `
+          )}
     </div>
   `;
 }
 
-customElements.define('shopping-list', component(ShoppingList));
+customElements.define("shopping-list", component(ShoppingList));

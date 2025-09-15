@@ -1,4 +1,4 @@
-import { Subscriber } from './Store';
+import { Subscriber } from "./Store";
 
 class ToasterClass {
   private _subscribers: Subscriber[] = [];
@@ -9,7 +9,7 @@ class ToasterClass {
     this.messages.push(m);
     this._notify();
     setTimeout(() => {
-      const idx = this.messages.findIndex(x => x.id === m.id);
+      const idx = this.messages.findIndex((x) => x.id === m.id);
       if (idx >= 0) {
         this.messages.splice(idx, 1);
         this._notify();
@@ -26,7 +26,7 @@ class ToasterClass {
   }
 
   private _notify() {
-    this._subscribers.forEach(fn => fn());
+    this._subscribers.forEach((fn) => fn());
   }
 }
 
