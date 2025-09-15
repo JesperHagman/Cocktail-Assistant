@@ -696,9 +696,21 @@ sheet.replaceSync(`
   .search button {
     border-radius: 6px;
   }
+
+  button {
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  }
+
+  button:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* lifted */
+  }
+
+  button:active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* flatter shadow */
+  }
 `);
 function SearchPanel() {
-    const [q, setQ] = (0, _haunted.useState)('');
+    const [q, setQ] = (0, _haunted.useState)("");
     // Attach stylesheet to shadow DOM when mounted
     (0, _haunted.useEffect)(()=>{
         if (this.shadowRoot) this.shadowRoot.adoptedStyleSheets = [
@@ -708,27 +720,27 @@ function SearchPanel() {
     async function doSearch(query) {
         const searchQuery = (query ?? q).trim();
         if (!searchQuery) return;
-        (0, _toaster.Toaster).push('Searching...');
+        (0, _toaster.Toaster).push("Searching...");
         (0, _store.Store).setQuery(searchQuery);
         try {
             const res = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`);
             const json = await res.json();
             if (!json.drinks) {
                 (0, _store.Store).setResults([]);
-                (0, _toaster.Toaster).push('No results found.');
+                (0, _toaster.Toaster).push("No results found.");
             } else {
                 (0, _store.Store).setResults(json.drinks);
-                (0, _toaster.Toaster).push('Here are the results.');
+                (0, _toaster.Toaster).push("Here are the results.");
             }
         } catch (err) {
             console.error(err);
             (0, _store.Store).setResults([]);
-            (0, _toaster.Toaster).push('Search failed.');
+            (0, _toaster.Toaster).push("Search failed.");
         }
     }
     // Default search on mount
     (0, _haunted.useEffect)(()=>{
-        doSearch('margarita');
+        doSearch("margarita");
     }, []);
     return (0, _litHtml.html)`
     <div class="search">
@@ -737,13 +749,13 @@ function SearchPanel() {
         placeholder="Search cocktails"
         .value=${q}
         @input=${(e)=>setQ(e.target.value)}
-        @keydown=${(e)=>e.key === 'Enter' && doSearch()}
+        @keydown=${(e)=>e.key === "Enter" && doSearch()}
       />
       <button @click=${()=>doSearch()}>Search</button>
     </div>
   `;
 }
-customElements.define('search-panel', (0, _haunted.component)(SearchPanel));
+customElements.define("search-panel", (0, _haunted.component)(SearchPanel));
 
 },{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB"}],"l15as":[function(require,module,exports,__globalThis) {
 /**
@@ -3375,7 +3387,7 @@ class StoreClass {
     }
     constructor(){
         this._subscribers = [];
-        this.query = '';
+        this.query = "";
         this.results = [];
         this.shopping = [];
     }
@@ -3450,31 +3462,38 @@ function CocktailResults() {
     function addDrinkToShopping(drink) {
         const ingredients = (0, _store.extractIngredients)(drink); // returns ShoppingItem[]
         if (ingredients.length === 0) {
-            (0, _toaster.Toaster).push('No ingredients found in this recipe.');
+            (0, _toaster.Toaster).push("No ingredients found in this recipe.");
             return;
         }
         (0, _store.Store).addToShopping(ingredients);
-        (0, _toaster.Toaster).push('Ingredients added to shopping list.');
+        (0, _toaster.Toaster).push("Ingredients added to shopping list.");
     }
     return (0, _litHtml.html)`
-    ${results.length === 0 ? (0, _litHtml.html)`<p class="small">No cocktails to show. Try searching for "margarita".</p>` : results.map((drink)=>(0, _litHtml.html)`
-        <div class="card">
-          <div class="thumb">
-            <img src="${drink.strDrinkThumb ?? ''}" alt="${drink.strDrink ?? ''}" />
-          </div>
-          <div class="meta">
-            <h3>${drink.strDrink}</h3>
-            <div class="instructions">${drink.strInstructions ?? ''}</div>
-            <div class="card-buttons">
-              <button @click=${()=>addDrinkToShopping(drink)}>+ Add ingredients</button>
+    ${results.length === 0 ? (0, _litHtml.html)`<p class="small">
+          No cocktails to show. Try searching for "margarita".
+        </p>` : results.map((drink)=>(0, _litHtml.html)`
+            <div class="card">
+              <div class="thumb">
+                <img
+                  src="${drink.strDrinkThumb ?? ""}"
+                  alt="${drink.strDrink ?? ""}"
+                />
+              </div>
+              <div class="meta">
+                <h3>${drink.strDrink}</h3>
+                <div class="instructions">${drink.strInstructions ?? ""}</div>
+                <div class="card-buttons">
+                  <button @click=${()=>addDrinkToShopping(drink)}>
+                    + Add ingredients
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      `)}
+          `)}
   `;
 }
 // Disable Shadow DOM so we can style with global main.css
-customElements.define('cocktail-results', (0, _haunted.component)(CocktailResults, {
+customElements.define("cocktail-results", (0, _haunted.component)(CocktailResults, {
     useShadowDOM: false
 }));
 
@@ -3540,34 +3559,35 @@ function ShoppingList() {
         if (this.shadowRoot) this.shadowRoot.adoptedStyleSheets = [
             sheet
         ];
-        const printBtn = document.getElementById('print-btn');
-        const clearBtn = document.getElementById('clear-btn');
+        const printBtn = document.getElementById("print-btn");
+        const clearBtn = document.getElementById("clear-btn");
         if (printBtn) printBtn.onclick = ()=>window.print();
         if (clearBtn) clearBtn.onclick = ()=>{
             (0, _store.Store).clearShopping();
-            (0, _toaster.Toaster).push('Shopping list cleared.');
+            (0, _toaster.Toaster).push("Shopping list cleared.");
         };
     }, []);
     return (0, _litHtml.html)`
     <div class="list">
       ${items.length === 0 ? (0, _litHtml.html)`<p class="small">No items yet — add some cocktails.</p>` : items.map((item)=>(0, _litHtml.html)`
-          <div class="list-item">
-            <div>${item.label}</div>
-            <div>
-              <button
-                @click=${()=>{
+              <div class="list-item">
+                <div>${item.label}</div>
+                <div>
+                  <button
+                    @click=${()=>{
             (0, _store.Store).removeShopping(item.key);
-            (0, _toaster.Toaster).push('Ingredient removed from shopping list.');
-        }}>
-                Remove
-              </button>
-            </div>
-          </div>
-        `)}
+            (0, _toaster.Toaster).push("Ingredient removed from shopping list.");
+        }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            `)}
     </div>
   `;
 }
-customElements.define('shopping-list', (0, _haunted.component)(ShoppingList));
+customElements.define("shopping-list", (0, _haunted.component)(ShoppingList));
 
 },{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB"}],"iL5hM":[function(require,module,exports,__globalThis) {
 var _litHtml = require("lit-html");
@@ -3587,7 +3607,7 @@ function AppToaster() {
         background: white;
         padding: 8px 12px;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
       }
 
       .toast {
@@ -3600,13 +3620,13 @@ function AppToaster() {
     </style>
 
     ${msgs.length > 0 ? (0, _litHtml.html)`
-        <div class="toaster-box">
-          ${msgs.map((m)=>(0, _litHtml.html)`<div class="toast">${m.text}</div>`)}
-        </div>
-      ` : null}
+          <div class="toaster-box">
+            ${msgs.map((m)=>(0, _litHtml.html)`<div class="toast">${m.text}</div>`)}
+          </div>
+        ` : null}
   `;
 }
-customElements.define('app-toaster', (0, _haunted.component)(AppToaster));
+customElements.define("app-toaster", (0, _haunted.component)(AppToaster));
 
 },{"lit-html":"l15as","haunted":"afv1t","../services/Toaster":"bOIxB"}]},["eZFTg","9Fk10"], "9Fk10", "parcelRequire99d0", {})
 
