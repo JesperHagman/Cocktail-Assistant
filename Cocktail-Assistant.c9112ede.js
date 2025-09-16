@@ -678,8 +678,7 @@ var _litHtml = require("lit-html");
 var _haunted = require("haunted");
 var _store = require("../services/Store");
 var _toaster = require("../services/Toaster");
-var _api = require("../services/api");
-// Constructable stylesheet
+var _mapper = require("../services/mapper"); // ✅ import mapper
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(`
   .search {
@@ -695,12 +694,11 @@ sheet.replaceSync(`
   }
 
   .search button {
-    border-radius: 6px; /* keep this if search buttons need special rounding */
+    border-radius: 6px;
   }
 `);
 function SearchPanel() {
     const [q, setQ] = (0, _haunted.useState)("");
-    // Attach stylesheet to shadow DOM when mounted
     (0, _haunted.useEffect)(()=>{
         if (this.shadowRoot) this.shadowRoot.adoptedStyleSheets = [
             sheet
@@ -709,16 +707,19 @@ function SearchPanel() {
     async function doSearch(query) {
         const searchQuery = (query ?? q).trim();
         if (!searchQuery) return;
-        (0, _toaster.Toaster).push('Searching...');
+        (0, _toaster.Toaster).push("Searching...");
         (0, _store.Store).setQuery(searchQuery);
         try {
-            const drinks = await (0, _api.searchCocktails)(searchQuery);
-            (0, _store.Store).setResults(drinks);
-            (0, _toaster.Toaster).push(drinks.length ? 'Here are the results.' : 'No results found.');
+            const res = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`);
+            const json = await res.json();
+            const drinks = json.drinks ?? [];
+            const mapped = drinks.map((0, _mapper.mapDrink)); // ✅ convert to clean Drink[]
+            (0, _store.Store).setResults(mapped);
+            (0, _toaster.Toaster).push(mapped.length ? "Here are the results." : "No results found.");
         } catch (err) {
             console.error(err);
             (0, _store.Store).setResults([]);
-            (0, _toaster.Toaster).push('Search failed.');
+            (0, _toaster.Toaster).push("Search failed.");
         }
     }
     // Default search on mount
@@ -740,7 +741,7 @@ function SearchPanel() {
 }
 customElements.define("search-panel", (0, _haunted.component)(SearchPanel));
 
-},{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB","../services/api":"2B9zK"}],"l15as":[function(require,module,exports,__globalThis) {
+},{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB","../services/mapper":"aD4Fo"}],"l15as":[function(require,module,exports,__globalThis) {
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -3325,7 +3326,6 @@ var _litHtmlJs = require("./lit-html.js");
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Store", ()=>Store);
-/** Extract ingredients as ShoppingItem[], dropping measures */ parcelHelpers.export(exports, "extractIngredients", ()=>extractIngredients);
 class StoreClass {
     setQuery(q) {
         this.query = q;
@@ -3335,23 +3335,19 @@ class StoreClass {
         this.results = r;
         this._notify();
     }
-    /** Dedup by ingredient name (key), show only the name (label) */ addToShopping(items) {
+    addToShopping(items) {
         const existing = new Set(this.shopping.map((s)=>s.key));
         for (const it of items){
             if (!it.key) continue;
             if (!existing.has(it.key)) {
                 existing.add(it.key);
-                this.shopping.push({
-                    key: it.key,
-                    label: it.label
-                });
+                this.shopping.push(it);
             }
         }
         this._notify();
     }
     removeShopping(key) {
-        const idx = this.shopping.findIndex((i)=>i.key === key);
-        if (idx >= 0) this.shopping.splice(idx, 1);
+        this.shopping = this.shopping.filter((i)=>i.key !== key);
         this._notify();
     }
     clearShopping() {
@@ -3361,8 +3357,7 @@ class StoreClass {
     subscribe(fn) {
         if (!this._subscribers.includes(fn)) this._subscribers.push(fn);
         return ()=>{
-            const idx = this._subscribers.indexOf(fn);
-            if (idx >= 0) this._subscribers.splice(idx, 1);
+            this._subscribers = this._subscribers.filter((f)=>f !== fn);
         };
     }
     _notify() {
@@ -3371,27 +3366,12 @@ class StoreClass {
     constructor(){
         this._subscribers = [];
         this.query = "";
-        this.results = [];
+        this.results = [] // ✅ store only clean Drinks
+        ;
         this.shopping = [];
     }
 }
 const Store = new StoreClass();
-function extractIngredients(d) {
-    const out = [];
-    for(let i = 1; i <= 15; i++){
-        const keyName = `strIngredient${i}`;
-        const name = d[keyName];
-        if (!name || !String(name).trim()) continue;
-        const cleanName = String(name).trim();
-        const key = cleanName.toLowerCase();
-        const label = cleanName;
-        out.push({
-            key,
-            label
-        });
-    }
-    return out;
-}
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"bOIxB":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -3430,15 +3410,29 @@ class ToasterClass {
 }
 const Toaster = new ToasterClass();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"2B9zK":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"aD4Fo":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "searchCocktails", ()=>searchCocktails);
-const BASE_URL = 'https://www.thecocktaildb.com/api/json/v1/1';
-async function searchCocktails(query) {
-    const res = await fetch(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
-    const json = await res.json();
-    return json.drinks ?? [];
+parcelHelpers.export(exports, "mapDrink", ()=>mapDrink);
+const MAX_INGREDIENTS = 15;
+function mapDrink(dto) {
+    const ingredients = [];
+    for(let i = 1; i <= MAX_INGREDIENTS; i++){
+        const key = `strIngredient${i}`; // ✅ now works
+        const name = dto[key];
+        if (!name || !name.trim()) continue;
+        ingredients.push({
+            name: name.trim(),
+            measure: null
+        });
+    }
+    return {
+        id: dto.idDrink,
+        name: dto.strDrink,
+        thumbnail: dto.strDrinkThumb,
+        instructions: dto.strInstructions,
+        ingredients
+    };
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"eYwB0":[function(require,module,exports,__globalThis) {
@@ -3513,25 +3507,30 @@ function CocktailResults() {
         return unsub;
     }, []);
     function addDrinkToShopping(drink) {
-        const ingredients = (0, _store.extractIngredients)(drink);
-        if (ingredients.length === 0) {
+        const items = drink.ingredients.map((i)=>({
+                key: i.name.toLowerCase(),
+                label: i.name
+            }));
+        if (items.length === 0) {
             (0, _toaster.Toaster).push("No ingredients found in this recipe.");
             return;
         }
-        (0, _store.Store).addToShopping(ingredients);
+        (0, _store.Store).addToShopping(items);
         (0, _toaster.Toaster).push("Ingredients added to shopping list.");
     }
     return (0, _litHtml.html)`
     ${results.length === 0 ? (0, _litHtml.html)`<p class="small">No cocktails to show. Try searching for "margarita".</p>` : results.map((drink)=>(0, _litHtml.html)`
             <div class="card">
               <div class="thumb">
-                <img src="${drink.strDrinkThumb ?? ""}" alt="${drink.strDrink ?? ""}" />
+                <img src="${drink.thumbnail ?? ""}" alt="${drink.name}" />
               </div>
               <div class="meta">
-                <h3>${drink.strDrink}</h3>
-                <div class="instructions">${drink.strInstructions ?? ""}</div>
+                <h3>${drink.name}</h3>
+                <div class="instructions">${drink.instructions ?? ""}</div>
                 <div class="card-buttons">
-                  <button @click=${()=>addDrinkToShopping(drink)}>+ Add ingredients</button>
+                  <button @click=${()=>addDrinkToShopping(drink)}>
+                    + Add ingredients
+                  </button>
                 </div>
               </div>
             </div>
