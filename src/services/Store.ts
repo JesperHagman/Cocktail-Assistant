@@ -1,13 +1,19 @@
 export type Subscriber = () => void;
 
-export interface Drink {
-  idDrink?: string;
-  strDrink?: string;
-  strDrinkThumb?: string | null;
-  strInstructions?: string | null;
-  [key: string]: any;
-}
+/** Ingredient keys allowed by TheCocktailDB (1–15) */
+type IngredientKeys = `strIngredient${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15}`;
 
+/** Raw DTO from API */
+export type DrinkDTO = {
+  idDrink: string;
+  strDrink: string;
+  strDrinkThumb: string | null;
+  strInstructions: string | null;
+} & {
+  [key in IngredientKeys]?: string | null;
+};
+
+/** Internal simplified type */
 export interface ShoppingItem {
   /** normalized ingredient name, e.g. "tequila" */
   key: string;
@@ -18,7 +24,7 @@ export interface ShoppingItem {
 class StoreClass {
   private _subscribers: Subscriber[] = [];
   public query = "";
-  public results: Drink[] = [];
+  public results: DrinkDTO[] = [];
   public shopping: ShoppingItem[] = [];
 
   setQuery(q: string) {
@@ -26,7 +32,7 @@ class StoreClass {
     this._notify();
   }
 
-  setResults(r: Drink[]) {
+  setResults(r: DrinkDTO[]) {
     this.results = r;
     this._notify();
   }
@@ -71,15 +77,16 @@ class StoreClass {
 export const Store = new StoreClass();
 
 /** Extract ingredients as ShoppingItem[], dropping measures */
-export function extractIngredients(d: Drink): ShoppingItem[] {
+export function extractIngredients(d: DrinkDTO): ShoppingItem[] {
   const out: ShoppingItem[] = [];
   for (let i = 1; i <= 15; i++) {
-    const name = d[`strIngredient${i}`];
+    const keyName = `strIngredient${i}` as keyof DrinkDTO;
+    const name = d[keyName];
     if (!name || !String(name).trim()) continue;
 
     const cleanName = String(name).trim();
     const key = cleanName.toLowerCase();
-    const label = cleanName; // no measurement
+    const label = cleanName;
 
     out.push({ key, label });
   }

@@ -1,6 +1,6 @@
 import { html } from "lit-html";
 import { component, useState, useEffect } from "haunted";
-import { Store, Drink, extractIngredients } from "../services/Store";
+import { Store, DrinkDTO, extractIngredients } from "../services/Store";
 import { Toaster } from "../services/Toaster";
 
 const sheet = new CSSStyleSheet();
@@ -60,7 +60,7 @@ sheet.replaceSync(`
 `);
 
 function CocktailResults(this: HTMLElement) {
-  const [results, setResults] = useState<Drink[]>(Store.results);
+  const [results, setResults] = useState<DrinkDTO[]>(Store.results);
 
   useEffect(() => {
     if (this.shadowRoot) {
@@ -71,7 +71,7 @@ function CocktailResults(this: HTMLElement) {
     return unsub;
   }, []);
 
-  function addDrinkToShopping(drink: Drink) {
+  function addDrinkToShopping(drink: DrinkDTO) {
     const ingredients = extractIngredients(drink);
     if (ingredients.length === 0) {
       Toaster.push("No ingredients found in this recipe.");

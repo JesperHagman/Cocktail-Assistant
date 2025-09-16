@@ -1,6 +1,6 @@
 import { html } from "lit-html";
 import { component, useState, useEffect } from "haunted";
-import { Store, Drink } from "../services/Store";
+import { Store } from "../services/Store";
 import { Toaster } from "../services/Toaster";
 import { searchCocktails } from '../services/api';
 
@@ -20,21 +20,10 @@ sheet.replaceSync(`
   }
 
   .search button {
-    border-radius: 6px;
-  }
-
-  button {
-  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-  }
-
-  button:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* lifted */
-  }
-
-  button:active {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* flatter shadow */
+    border-radius: 6px; /* keep this if search buttons need special rounding */
   }
 `);
+
 
 function SearchPanel(this: HTMLElement) {
   const [q, setQ] = useState<string>("");

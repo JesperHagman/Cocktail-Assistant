@@ -29,7 +29,8 @@ sheet.replaceSync(`
     border-bottom: none;
   }
 
-  .list-item button {
+  .list-item button,
+  button {
     padding: 4px 8px;
     cursor: pointer;
     border-radius: 6px;
@@ -39,10 +40,6 @@ sheet.replaceSync(`
     display: flex;
     gap: 8px;
     margin-top: 10px;
-  }
-
-  button {
-  border-radius:6px;
   }
 
   @media print {
