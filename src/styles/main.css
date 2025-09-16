@@ -28,6 +28,7 @@ body {
   margin-bottom: 16px;
 }
 
+/* Sidebar */
 .shopping {
   background: white;
   padding: 12px;
@@ -35,66 +36,9 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
-/* Cocktail "cards" */
-.card {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-  overflow: hidden;
-  min-height: 220px;
-  margin-bottom: 16px;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-/* Card: left image */
-.thumb {
-  flex: 1 1 50%;
-  max-width: 50%;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-}
-
-.thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Card: right content */
-.meta {
-  flex: 1 1 50%;
-  max-width: 50%;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 8px;
-}
-
-/* Buttons row pinned bottom */
-.card-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: auto;
-}
-
-.card-buttons button {
-  border-radius: 6px;
-  padding: 4px 8px;
-}
-
+/* Global button effects */
 button {
-  transition: background-color 0.2s ease, transform 0.1s ease,
-    box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
@@ -102,14 +46,21 @@ button:hover {
 }
 
 button:active {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* flatter shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* flatter */
 }
 
-/* Toaster notification container */
+#print-btn,
+#clear-btn {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid black;
+}
+
+/* Toaster */
 .toaster {
   position: fixed;
   bottom: 16px;
-  width: 320px; /* match sidebar width */
+  width: 320px;
   right: calc(50% - 1100px / 2);
   z-index: 1000;
 }
@@ -121,13 +72,6 @@ button:active {
   border-radius: 8px;
   margin-top: 8px;
   opacity: 0.95;
-}
-
-#print-btn,
-#clear-btn {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid black;
 }
 
 /* Small text (shared) */

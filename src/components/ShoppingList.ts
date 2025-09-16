@@ -41,6 +41,10 @@ sheet.replaceSync(`
     margin-top: 10px;
   }
 
+  button {
+  border-radius:6px;
+  }
+
   @media print {
     /* Hide remove/clear/print buttons in print */
     .list-item button,

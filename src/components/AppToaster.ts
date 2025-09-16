@@ -24,7 +24,6 @@ function AppToaster(this: HTMLElement) {
         border-radius: 6px;
         margin: 6px 0;
         opacity: 0.95;
-        animation: fadein 0.3s, fadeout 0.5s 2.5s;
       }
     </style>
 

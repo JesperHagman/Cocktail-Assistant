@@ -35,11 +35,10 @@ A small Haunted + lit-html app to search cocktails and build a deduplicated shop
 
 ## Insights
 
-- For production I would scope styles properly with Shadow DOM and component-local CSS.
-- In this test I demonstrated two different approaches:
-  1. Most components use `CSSStyleSheet` + `adoptedStyleSheets` for scoped styles (including print-specific rules in the shopping list).
-  2. Some components (like the toaster) use an inline `<style>` block for very localized styling.
-- Shadow DOM is intentionally disabled on one component (`cocktail-results`) to make it easier to apply global layout styles during the test.
+- Components use **Shadow DOM with `CSSStyleSheet` + `adoptedStyleSheets`** for scoped styles.
+- A single global `main.css` handles **layout and shared styles** (grid, body background, responsive tweaks).
+- The shopping list includes **scoped print rules** in its own stylesheet (e.g. hiding buttons when printing).
+- This separation keeps component styles encapsulated, while allowing global layout to remain flexible.
 
 ## Quick start
 
