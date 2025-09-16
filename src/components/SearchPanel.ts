@@ -2,6 +2,7 @@ import { html } from "lit-html";
 import { component, useState, useEffect } from "haunted";
 import { Store, Drink } from "../services/Store";
 import { Toaster } from "../services/Toaster";
+import { searchCocktails } from '../services/api';
 
 // Constructable stylesheet
 const sheet = new CSSStyleSheet();
@@ -49,28 +50,17 @@ function SearchPanel(this: HTMLElement) {
     const searchQuery = (query ?? q).trim();
     if (!searchQuery) return;
 
-    Toaster.push("Searching...");
+    Toaster.push('Searching...');
     Store.setQuery(searchQuery);
 
     try {
-      const res = await fetch(
-        `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(
-          searchQuery
-        )}`
-      );
-      const json = await res.json();
-
-      if (!json.drinks) {
-        Store.setResults([]);
-        Toaster.push("No results found.");
-      } else {
-        Store.setResults(json.drinks as Drink[]);
-        Toaster.push("Here are the results.");
-      }
+      const drinks = await searchCocktails(searchQuery);
+      Store.setResults(drinks);
+      Toaster.push(drinks.length ? 'Here are the results.' : 'No results found.');
     } catch (err) {
       console.error(err);
       Store.setResults([]);
-      Toaster.push("Search failed.");
+      Toaster.push('Search failed.');
     }
   }
 
