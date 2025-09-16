@@ -28,6 +28,15 @@ body {
   margin-bottom: 16px;
 }
 
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 16px; /* distance from top when scrolling */
+  align-self: start;
+  height: max-content;
+}
+
 /* Sidebar */
 .shopping {
   background: white;
