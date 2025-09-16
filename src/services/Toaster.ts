@@ -18,7 +18,9 @@ class ToasterClass {
   }
 
   subscribe(fn: Subscriber) {
-    this._subscribers.push(fn);
+    if (!this._subscribers.includes(fn)) {
+      this._subscribers.push(fn);
+    }
     return () => {
       const idx = this._subscribers.indexOf(fn);
       if (idx >= 0) this._subscribers.splice(idx, 1);
