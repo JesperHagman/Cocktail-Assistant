@@ -678,6 +678,7 @@ var _litHtml = require("lit-html");
 var _haunted = require("haunted");
 var _store = require("../services/Store");
 var _toaster = require("../services/Toaster");
+var _api = require("../services/api");
 // Constructable stylesheet
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(`
@@ -694,19 +695,7 @@ sheet.replaceSync(`
   }
 
   .search button {
-    border-radius: 6px;
-  }
-
-  button {
-  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-  }
-
-  button:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* lifted */
-  }
-
-  button:active {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* flatter shadow */
+    border-radius: 6px; /* keep this if search buttons need special rounding */
   }
 `);
 function SearchPanel() {
@@ -720,22 +709,16 @@ function SearchPanel() {
     async function doSearch(query) {
         const searchQuery = (query ?? q).trim();
         if (!searchQuery) return;
-        (0, _toaster.Toaster).push("Searching...");
+        (0, _toaster.Toaster).push('Searching...');
         (0, _store.Store).setQuery(searchQuery);
         try {
-            const res = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`);
-            const json = await res.json();
-            if (!json.drinks) {
-                (0, _store.Store).setResults([]);
-                (0, _toaster.Toaster).push("No results found.");
-            } else {
-                (0, _store.Store).setResults(json.drinks);
-                (0, _toaster.Toaster).push("Here are the results.");
-            }
+            const drinks = await (0, _api.searchCocktails)(searchQuery);
+            (0, _store.Store).setResults(drinks);
+            (0, _toaster.Toaster).push(drinks.length ? 'Here are the results.' : 'No results found.');
         } catch (err) {
             console.error(err);
             (0, _store.Store).setResults([]);
-            (0, _toaster.Toaster).push("Search failed.");
+            (0, _toaster.Toaster).push('Search failed.');
         }
     }
     // Default search on mount
@@ -757,7 +740,7 @@ function SearchPanel() {
 }
 customElements.define("search-panel", (0, _haunted.component)(SearchPanel));
 
-},{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB"}],"l15as":[function(require,module,exports,__globalThis) {
+},{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB","../services/api":"2B9zK"}],"l15as":[function(require,module,exports,__globalThis) {
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -3376,7 +3359,7 @@ class StoreClass {
         this._notify();
     }
     subscribe(fn) {
-        this._subscribers.push(fn);
+        if (!this._subscribers.includes(fn)) this._subscribers.push(fn);
         return ()=>{
             const idx = this._subscribers.indexOf(fn);
             if (idx >= 0) this._subscribers.splice(idx, 1);
@@ -3396,11 +3379,12 @@ const Store = new StoreClass();
 function extractIngredients(d) {
     const out = [];
     for(let i = 1; i <= 15; i++){
-        const name = d[`strIngredient${i}`];
+        const keyName = `strIngredient${i}`;
+        const name = d[keyName];
         if (!name || !String(name).trim()) continue;
         const cleanName = String(name).trim();
         const key = cleanName.toLowerCase();
-        const label = cleanName; // no measurement
+        const label = cleanName;
         out.push({
             key,
             label
@@ -3430,7 +3414,7 @@ class ToasterClass {
         }, 3200);
     }
     subscribe(fn) {
-        this._subscribers.push(fn);
+        if (!this._subscribers.includes(fn)) this._subscribers.push(fn);
         return ()=>{
             const idx = this._subscribers.indexOf(fn);
             if (idx >= 0) this._subscribers.splice(idx, 1);
@@ -3446,21 +3430,90 @@ class ToasterClass {
 }
 const Toaster = new ToasterClass();
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"2B9zK":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "searchCocktails", ()=>searchCocktails);
+const BASE_URL = 'https://www.thecocktaildb.com/api/json/v1/1';
+async function searchCocktails(query) {
+    const res = await fetch(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
+    const json = await res.json();
+    return json.drinks ?? [];
+}
+
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"eYwB0":[function(require,module,exports,__globalThis) {
 var _litHtml = require("lit-html");
 var _haunted = require("haunted");
 var _store = require("../services/Store");
 var _toaster = require("../services/Toaster");
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(`
+  .card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
+    min-height: 220px;
+    margin-bottom: 16px;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .thumb {
+    flex: 1 1 50%;
+    max-width: 50%;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .meta {
+    flex: 1 1 50%;
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 8px;
+  }
+
+  .card-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .card-buttons button {
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+`);
 function CocktailResults() {
     const [results, setResults] = (0, _haunted.useState)((0, _store.Store).results);
     (0, _haunted.useEffect)(()=>{
+        if (this.shadowRoot) this.shadowRoot.adoptedStyleSheets = [
+            sheet
+        ];
         const unsub = (0, _store.Store).subscribe(()=>setResults([
                 ...(0, _store.Store).results
             ]));
         return unsub;
     }, []);
     function addDrinkToShopping(drink) {
-        const ingredients = (0, _store.extractIngredients)(drink); // returns ShoppingItem[]
+        const ingredients = (0, _store.extractIngredients)(drink);
         if (ingredients.length === 0) {
             (0, _toaster.Toaster).push("No ingredients found in this recipe.");
             return;
@@ -3469,33 +3522,23 @@ function CocktailResults() {
         (0, _toaster.Toaster).push("Ingredients added to shopping list.");
     }
     return (0, _litHtml.html)`
-    ${results.length === 0 ? (0, _litHtml.html)`<p class="small">
-          No cocktails to show. Try searching for "margarita".
-        </p>` : results.map((drink)=>(0, _litHtml.html)`
+    ${results.length === 0 ? (0, _litHtml.html)`<p class="small">No cocktails to show. Try searching for "margarita".</p>` : results.map((drink)=>(0, _litHtml.html)`
             <div class="card">
               <div class="thumb">
-                <img
-                  src="${drink.strDrinkThumb ?? ""}"
-                  alt="${drink.strDrink ?? ""}"
-                />
+                <img src="${drink.strDrinkThumb ?? ""}" alt="${drink.strDrink ?? ""}" />
               </div>
               <div class="meta">
                 <h3>${drink.strDrink}</h3>
                 <div class="instructions">${drink.strInstructions ?? ""}</div>
                 <div class="card-buttons">
-                  <button @click=${()=>addDrinkToShopping(drink)}>
-                    + Add ingredients
-                  </button>
+                  <button @click=${()=>addDrinkToShopping(drink)}>+ Add ingredients</button>
                 </div>
               </div>
             </div>
           `)}
   `;
 }
-// Disable Shadow DOM so we can style with global main.css
-customElements.define("cocktail-results", (0, _haunted.component)(CocktailResults, {
-    useShadowDOM: false
-}));
+customElements.define("cocktail-results", (0, _haunted.component)(CocktailResults));
 
 },{"lit-html":"l15as","haunted":"afv1t","../services/Store":"1aP41","../services/Toaster":"bOIxB"}],"8TNTQ":[function(require,module,exports,__globalThis) {
 var _litHtml = require("lit-html");
@@ -3528,15 +3571,23 @@ sheet.replaceSync(`
     border-bottom: none;
   }
 
-  .list-item button {
+  .list-item button,
+  button {
     padding: 4px 8px;
     cursor: pointer;
     border-radius: 6px;
   }
 
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
   @media print {
-    /* Hide remove buttons in print */
-    .list-item button {
+    /* Hide remove/clear/print buttons in print */
+    .list-item button,
+    .actions {
       display: none;
     }
     .list {
@@ -3555,17 +3606,9 @@ function ShoppingList() {
         return unsub;
     }, []);
     (0, _haunted.useEffect)(()=>{
-        // attach stylesheet to shadowRoot when mounted
         if (this.shadowRoot) this.shadowRoot.adoptedStyleSheets = [
             sheet
         ];
-        const printBtn = document.getElementById("print-btn");
-        const clearBtn = document.getElementById("clear-btn");
-        if (printBtn) printBtn.onclick = ()=>window.print();
-        if (clearBtn) clearBtn.onclick = ()=>{
-            (0, _store.Store).clearShopping();
-            (0, _toaster.Toaster).push("Shopping list cleared.");
-        };
     }, []);
     return (0, _litHtml.html)`
     <div class="list">
@@ -3584,6 +3627,18 @@ function ShoppingList() {
                 </div>
               </div>
             `)}
+    </div>
+
+    <div class="actions">
+      <button @click=${()=>window.print()}>Print</button>
+      <button
+        @click=${()=>{
+        (0, _store.Store).clearShopping();
+        (0, _toaster.Toaster).push("Shopping list cleared.");
+    }}
+      >
+        Clear
+      </button>
     </div>
   `;
 }
@@ -3615,7 +3670,6 @@ function AppToaster() {
         border-radius: 6px;
         margin: 6px 0;
         opacity: 0.95;
-        animation: fadein 0.3s, fadeout 0.5s 2.5s;
       }
     </style>
 
