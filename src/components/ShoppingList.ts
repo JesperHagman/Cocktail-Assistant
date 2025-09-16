@@ -35,9 +35,16 @@ sheet.replaceSync(`
     border-radius: 6px;
   }
 
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
   @media print {
-    /* Hide remove buttons in print */
-    .list-item button {
+    /* Hide remove/clear/print buttons in print */
+    .list-item button,
+    .actions {
       display: none;
     }
     .list {
@@ -57,19 +64,8 @@ function ShoppingList(this: HTMLElement) {
   }, []);
 
   useEffect(() => {
-    // attach stylesheet to shadowRoot when mounted
     if (this.shadowRoot) {
       this.shadowRoot.adoptedStyleSheets = [sheet];
-    }
-
-    const printBtn = document.getElementById("print-btn");
-    const clearBtn = document.getElementById("clear-btn");
-    if (printBtn) printBtn.onclick = () => window.print();
-    if (clearBtn) {
-      clearBtn.onclick = () => {
-        Store.clearShopping();
-        Toaster.push("Shopping list cleared.");
-      };
     }
   }, []);
 
@@ -94,6 +90,18 @@ function ShoppingList(this: HTMLElement) {
               </div>
             `
           )}
+    </div>
+
+    <div class="actions">
+      <button @click=${() => window.print()}>Print</button>
+      <button
+        @click=${() => {
+          Store.clearShopping();
+          Toaster.push("Shopping list cleared.");
+        }}
+      >
+        Clear
+      </button>
     </div>
   `;
 }

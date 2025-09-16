@@ -161,7 +161,6 @@ button:active {
 @media print {
   .main-content,
   .toaster,
-  .shopping-buttons,
   .note,
   .list-item button,
   .app-header {
