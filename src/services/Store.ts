@@ -1,7 +1,8 @@
 export type Subscriber = () => void;
 
 /** Ingredient keys allowed by TheCocktailDB (1–15) */
-type IngredientKeys = `strIngredient${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15}`;
+export type IngredientKeys =
+  `strIngredient${1|2|3|4|5|6|7|8|9|10|11|12|13|14|15}`;
 
 /** Raw DTO from API */
 export type DrinkDTO = {
@@ -13,18 +14,29 @@ export type DrinkDTO = {
   [key in IngredientKeys]?: string | null;
 };
 
-/** Internal simplified type */
+
+/** Internal clean domain model */
+export interface Ingredient {
+  name: string;
+  measure: string | null;
+}
+export interface Drink {
+  id: string;
+  name: string;
+  thumbnail: string | null;
+  instructions: string | null;
+  ingredients: Ingredient[];
+}
+
 export interface ShoppingItem {
-  /** normalized ingredient name, e.g. "tequila" */
-  key: string;
-  /** display label, e.g. "Tequila" */
-  label: string;
+  key: string;   // normalized, e.g. "tequila"
+  label: string; // display, e.g. "Tequila"
 }
 
 class StoreClass {
   private _subscribers: Subscriber[] = [];
   public query = "";
-  public results: DrinkDTO[] = [];
+  public results: Drink[] = [];   // ✅ store only clean Drinks
   public shopping: ShoppingItem[] = [];
 
   setQuery(q: string) {
@@ -32,27 +44,25 @@ class StoreClass {
     this._notify();
   }
 
-  setResults(r: DrinkDTO[]) {
+  setResults(r: Drink[]) {
     this.results = r;
     this._notify();
   }
 
-  /** Dedup by ingredient name (key), show only the name (label) */
   addToShopping(items: ShoppingItem[]) {
     const existing = new Set(this.shopping.map((s) => s.key));
     for (const it of items) {
       if (!it.key) continue;
       if (!existing.has(it.key)) {
         existing.add(it.key);
-        this.shopping.push({ key: it.key, label: it.label });
+        this.shopping.push(it);
       }
     }
     this._notify();
   }
 
   removeShopping(key: string) {
-    const idx = this.shopping.findIndex((i) => i.key === key);
-    if (idx >= 0) this.shopping.splice(idx, 1);
+    this.shopping = this.shopping.filter((i) => i.key !== key);
     this._notify();
   }
 
@@ -66,8 +76,7 @@ class StoreClass {
       this._subscribers.push(fn);
     }
     return () => {
-      const idx = this._subscribers.indexOf(fn);
-      if (idx >= 0) this._subscribers.splice(idx, 1);
+      this._subscribers = this._subscribers.filter((f) => f !== fn);
     };
   }
 
@@ -77,20 +86,3 @@ class StoreClass {
 }
 
 export const Store = new StoreClass();
-
-/** Extract ingredients as ShoppingItem[], dropping measures */
-export function extractIngredients(d: DrinkDTO): ShoppingItem[] {
-  const out: ShoppingItem[] = [];
-  for (let i = 1; i <= 15; i++) {
-    const keyName = `strIngredient${i}` as keyof DrinkDTO;
-    const name = d[keyName];
-    if (!name || !String(name).trim()) continue;
-
-    const cleanName = String(name).trim();
-    const key = cleanName.toLowerCase();
-    const label = cleanName;
-
-    out.push({ key, label });
-  }
-  return out;
-}

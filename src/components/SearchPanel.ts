@@ -1,10 +1,9 @@
 import { html } from "lit-html";
 import { component, useState, useEffect } from "haunted";
-import { Store } from "../services/Store";
+import { Store, DrinkDTO } from "../services/Store";
 import { Toaster } from "../services/Toaster";
-import { searchCocktails } from '../services/api';
+import { mapDrink } from "../services/mapper";  // ✅ import mapper
 
-// Constructable stylesheet
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(`
   .search {
@@ -20,15 +19,13 @@ sheet.replaceSync(`
   }
 
   .search button {
-    border-radius: 6px; /* keep this if search buttons need special rounding */
+    border-radius: 6px;
   }
 `);
-
 
 function SearchPanel(this: HTMLElement) {
   const [q, setQ] = useState<string>("");
 
-  // Attach stylesheet to shadow DOM when mounted
   useEffect(() => {
     if (this.shadowRoot) {
       this.shadowRoot.adoptedStyleSheets = [sheet];
@@ -39,17 +36,24 @@ function SearchPanel(this: HTMLElement) {
     const searchQuery = (query ?? q).trim();
     if (!searchQuery) return;
 
-    Toaster.push('Searching...');
+    Toaster.push("Searching...");
     Store.setQuery(searchQuery);
 
     try {
-      const drinks = await searchCocktails(searchQuery);
-      Store.setResults(drinks);
-      Toaster.push(drinks.length ? 'Here are the results.' : 'No results found.');
+      const res = await fetch(
+        `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`
+      );
+      const json = await res.json();
+
+      const drinks: DrinkDTO[] = json.drinks ?? [];
+      const mapped = drinks.map(mapDrink); // ✅ convert to clean Drink[]
+
+      Store.setResults(mapped);
+      Toaster.push(mapped.length ? "Here are the results." : "No results found.");
     } catch (err) {
       console.error(err);
       Store.setResults([]);
-      Toaster.push('Search failed.');
+      Toaster.push("Search failed.");
     }
   }
 
@@ -73,3 +77,4 @@ function SearchPanel(this: HTMLElement) {
 }
 
 customElements.define("search-panel", component(SearchPanel));
+

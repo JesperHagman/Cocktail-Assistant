@@ -1,6 +1,6 @@
 import { html } from "lit-html";
 import { component, useState, useEffect } from "haunted";
-import { Store, DrinkDTO, extractIngredients } from "../services/Store";
+import { Store, Drink, ShoppingItem } from "../services/Store";
 import { Toaster } from "../services/Toaster";
 
 const sheet = new CSSStyleSheet();
@@ -60,7 +60,7 @@ sheet.replaceSync(`
 `);
 
 function CocktailResults(this: HTMLElement) {
-  const [results, setResults] = useState<DrinkDTO[]>(Store.results);
+  const [results, setResults] = useState<Drink[]>(Store.results);
 
   useEffect(() => {
     if (this.shadowRoot) {
@@ -71,13 +71,18 @@ function CocktailResults(this: HTMLElement) {
     return unsub;
   }, []);
 
-  function addDrinkToShopping(drink: DrinkDTO) {
-    const ingredients = extractIngredients(drink);
-    if (ingredients.length === 0) {
+  function addDrinkToShopping(drink: Drink) {
+    const items: ShoppingItem[] = drink.ingredients.map((i) => ({
+      key: i.name.toLowerCase(),
+      label: i.name,
+    }));
+
+    if (items.length === 0) {
       Toaster.push("No ingredients found in this recipe.");
       return;
     }
-    Store.addToShopping(ingredients);
+
+    Store.addToShopping(items);
     Toaster.push("Ingredients added to shopping list.");
   }
 
@@ -88,13 +93,15 @@ function CocktailResults(this: HTMLElement) {
           (drink) => html`
             <div class="card">
               <div class="thumb">
-                <img src="${drink.strDrinkThumb ?? ""}" alt="${drink.strDrink ?? ""}" />
+                <img src="${drink.thumbnail ?? ""}" alt="${drink.name}" />
               </div>
               <div class="meta">
-                <h3>${drink.strDrink}</h3>
-                <div class="instructions">${drink.strInstructions ?? ""}</div>
+                <h3>${drink.name}</h3>
+                <div class="instructions">${drink.instructions ?? ""}</div>
                 <div class="card-buttons">
-                  <button @click=${() => addDrinkToShopping(drink)}>+ Add ingredients</button>
+                  <button @click=${() => addDrinkToShopping(drink)}>
+                    + Add ingredients
+                  </button>
                 </div>
               </div>
             </div>
